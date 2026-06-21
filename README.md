@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  一句话出选题 → 自动查找<strong>真实文献</strong> → 调节<strong>标准格式</strong> → 交付 .docx<br/>
+  一句话出选题 → 自动查找<strong>真实文献</strong> → 调节<strong>标准格式</strong> → 降低<strong>AI率</strong> → 交付 .docx<br/>
   不是真的水——而是把体力活自动化，让你的时间用在更有价值的事情上。
 </p>
 
