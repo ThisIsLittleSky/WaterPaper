@@ -27,10 +27,11 @@ from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
-# AI 模式检测词库
+# AI 模式检测词库（整合 thesis-optimizer 三级词汇体系）
 # ---------------------------------------------------------------------------
 
-AI_CONNECTORS_ZH = [
+# 红色高风险词 — 出现即警告
+AI_CONNECTORS_RED = [
     "首先", "其次", "再次", "最后",
     "综上所述", "总而言之", "总的来说",
     "此外", "另外", "不仅如此",
@@ -38,15 +39,54 @@ AI_CONNECTORS_ZH = [
     "具有重要意义", "具有重要的理论意义", "具有重要的现实意义",
     "实现了良好效果", "具有较高价值", "具有重要的参考价值",
     "为……奠定基础", "在……的过程中",
+    # thesis-optimizer 补充
+    "至关重要", "不可或缺", "极其重要",
+    "深远影响", "革命性突破",
+    "深入探讨", "全面分析", "系统梳理",
+    "充分体现", "淋漓尽致地展现",
+    "宝贵的经验", "充满活力的",
+    "在这一背景下", "在当今时代背景下",
+    "随着……的快速发展", "随着……的不断深入",
+    "具有深远意义", "发挥至关重要的作用",
 ]
 
+# 黄色中风险词 — 密度过高时警告
+AI_CONNECTORS_YELLOW = [
+    "然而", "因此", "鉴于此", "基于此",
+    "揭示了", "阐明了",
+    "构建", "打造", "提供",
+    "值得注意的是", "有必要指出",
+]
+
+# 综合连接词列表（兼容原有逻辑）
+AI_CONNECTORS_ZH = AI_CONNECTORS_RED + AI_CONNECTORS_YELLOW
+
 AI_PATTERNS_ZH = [
-    (r"首先.*其次.*再次.*最后", "序数词连环（首先→其次→再次→最后）"),
+    # 原有
+    (r"首先.{1,30}其次.{1,30}再次.{1,30}最后", "序数词连环（首先→其次→再次→最后）"),
     (r"不仅.{1,20}而且", "不仅……而且……句型"),
     (r"既.{1,15}又", "既……又……句型"),
     (r"随着.{1,30}的(快速|不断|持续)发展", "随着……的发展 套话"),
     (r"在当今.{1,20}(时代|社会)背景下", "在当今……背景下 套话"),
     (r"具有重要的.{1,20}(意义|价值)", "具有重要的……意义/价值 套话"),
+    # thesis-optimizer 补充 — 内容模式
+    (r"标志着.{1,30}(重要|关键|新)转折", "C01 夸大意义——'标志着……转折'"),
+    (r"有学者指(出|出，).{0,30}(?!\[\d)", "C02 模糊归因——'有学者指出'无具体引用"),
+    (r"从而(凸显|彰显|体现)了", "C06 肤浅分析结尾——'从而凸显了……'"),
+    (r"为未来.{1,20}(发展|研究)指(明|出)了方向", "C07 通用积极结论"),
+    # thesis-optimizer 补充 — 语言模式
+    (r"(高效|鲁棒|直观)(、|，|且)(高效|鲁棒|直观)(、|，|且)", "L04 三段式法则——形容词并列"),
+    (r"(全面|客观|科学)(、|，|且)(全面|客观|科学)(、|，|且)", "L04 三段式法则——形容词并列"),
+    (r"不可否认的是", "L07 填充短语——'不可否认的是'"),
+    # thesis-optimizer 补充 — 结构模式
+    (r"\(\s*1\s*\).{1,50}\(\s*2\s*\).{1,50}\(\s*3\s*\)", "S01 规整编号排比 (1)(2)(3)"),
+    (r"接下来.{1,10}(本章|本节|我们)将(介绍|探讨|讨论)", "S04 生硬路标过渡——'接下来本章将……'"),
+    # thesis-optimizer 补充 — 语气模式
+    (r"(随着|伴随).{1,20}(发展|进步|深入|推进)", "T02 万能宣告式开头——'随着…的发展'"),
+    (r"根据(目前|现有|近年).{1,15}(资料|研究|实践)", "T03 知识截止免责腔调"),
+    # thesis-optimizer 补充 — 格式模式
+    (r"[—]{3,}", "F01 长横线分隔符（强 AI 信号）"),
+    (r"——.{1,50}——.{1,50}——", "F01 破折号过度使用"),
 ]
 
 AI_PATTERNS_EN = [
@@ -54,6 +94,18 @@ AI_PATTERNS_EN = [
     (r"it is worth noting that", "it is worth noting that"),
     (r"has significant implications", "has significant implications"),
     (r"plays a crucial role", "plays a crucial role"),
+]
+
+# 术语保护 — 检测被通俗化/错误翻译的专业术语
+# 注意：标准中文术语（如"卷积神经网络""循环神经网络"）是正常表述，不在此列
+# 以下仅匹配明确错误的翻译变体
+TERM_PROTECTION_VIOLATIONS = [
+    (r"变换器模型", "Transformer 可能被误改为'变换器模型'（应保留英文原名）"),
+    (r"自我关注(机制|力)", "Self-Attention 可能被误改为'自我关注'（应保留英文原名）"),
+    (r"时序推测", "'时间序列预测'可能被误改为'时序推测'"),
+    (r"知识浓缩", "'知识蒸馏'可能被误改为'知识浓缩'"),
+    (r"梯度下撤", "'梯度下降'可能被误改为'梯度下撤'"),
+    (r"预训练.{0,5}(生成|变换)器", "GPT/BERT 等模型名可能被过度翻译"),
 ]
 
 DETECTION_DIMS = (
@@ -97,6 +149,12 @@ class HumanizeCheckResult:
     short_sentence_ratio: float = 0.0
     connector_count: int = 0
     connector_density: float = 0.0
+    connector_red: int = 0
+    connector_yellow: int = 0
+    connector_red_detail: dict = field(default_factory=dict)
+    connector_yellow_detail: dict = field(default_factory=dict)
+    term_violations: list[str] = field(default_factory=list)
+    density_flat_runs: list[int] = field(default_factory=list)
     findings: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -129,6 +187,63 @@ def find_ai_patterns(text: str, lang: str = "zh") -> list[str]:
         if re.search(pat, text):
             found.append(desc)
     return found
+
+
+def check_term_protection(text: str) -> list[str]:
+    """检测术语是否被误改为通俗化表述"""
+    violations = []
+    for pat, desc in TERM_PROTECTION_VIOLATIONS:
+        if re.search(pat, text):
+            violations.append(f"术语保护: {desc}")
+    return violations
+
+
+def count_connectors_risk(text: str, lang: str = "zh") -> dict:
+    """按风险等级分类统计连接词命中"""
+    if lang != "zh":
+        return {"red": 0, "yellow": 0, "total": 0}
+    red_hits = {}
+    yellow_hits = {}
+    for c in AI_CONNECTORS_RED:
+        n = text.count(c)
+        if n > 0:
+            red_hits[c] = n
+    for c in AI_CONNECTORS_YELLOW:
+        n = text.count(c)
+        if n > 0:
+            yellow_hits[c] = n
+    return {
+        "red": sum(red_hits.values()),
+        "yellow": sum(yellow_hits.values()),
+        "total": sum(red_hits.values()) + sum(yellow_hits.values()),
+        "red_detail": red_hits,
+        "yellow_detail": yellow_hits,
+    }
+
+
+def check_info_density(text: str) -> dict | None:
+    """检查连续段落信息密度波动（实验性）"""
+    paragraphs = split_paragraphs(text)
+    if len(paragraphs) < 4:
+        return None
+    densities = []
+    for p in paragraphs:
+        chars = len(p)
+        if chars == 0:
+            densities.append(0)
+            continue
+        proper_nouns = len(re.findall(r'[A-Z]{2,}', p))
+        numbers = len(re.findall(r'\d+', p))
+        refs = len(re.findall(r'\[\d+(?:[,，\s]*\d+)*\]', p))
+        density = (proper_nouns * 3 + numbers * 2 + refs * 2) / (chars / 100)
+        densities.append(round(density, 1))
+    flat_runs = []
+    for i in range(len(densities) - 2):
+        if max(densities[i:i+3]) - min(densities[i:i+3]) < 2:
+            flat_runs.append(i + 1)
+    if flat_runs:
+        return {"densities": densities, "flat_runs": flat_runs}
+    return None
 
 
 def split_paragraphs(text: str) -> list[str]:
@@ -232,6 +347,26 @@ def check_text(text: str, lang: str = "zh",
             )
             result.ok = False
 
+    # -- D4 增强: 三级词汇风险报告 --
+    risk = count_connectors_risk(plain_text, lang)
+    result.connector_red = risk["red"]
+    result.connector_yellow = risk["yellow"]
+    result.connector_red_detail = risk.get("red_detail", {})
+    result.connector_yellow_detail = risk.get("yellow_detail", {})
+    if risk["red"] > 0:
+        red_words = ", ".join(f"{w}×{c}" for w, c in risk.get("red_detail", {}).items())
+        result.findings.append(
+            f"D4 红色高风险词: {risk['red']} 次 — {red_words}。"
+            f"建议删除或替换这些词汇。"
+        )
+        result.ok = False
+    if risk["yellow"] > 3:
+        yellow_words = ", ".join(f"{w}×{c}" for w, c in risk.get("yellow_detail", {}).items())
+        result.warnings.append(
+            f"D4 黄色中风险词: {risk['yellow']} 次 — {yellow_words}。"
+            f"密度较高，建议分散或替换部分词汇。"
+        )
+
     # -- AI 高频句式扫描 --
     pattern_hits = find_ai_patterns(plain_text, lang)
     for p in pattern_hits:
@@ -244,6 +379,25 @@ def check_text(text: str, lang: str = "zh",
         result.findings.append(
             "检测到长横线分隔符（如'————'）。这是强 AI 生成信号，"
             "请用空白行或章节标题替代。"
+        )
+        result.ok = False
+
+    # -- 术语保护检查 --
+    term_violations = check_term_protection(plain_text)
+    if term_violations:
+        result.term_violations = term_violations
+        for v in term_violations:
+            result.findings.append(v)
+        result.ok = False
+
+    # -- D3 增强: 信息密度波动检查 --
+    density_result = check_info_density(plain_text)
+    if density_result and density_result["flat_runs"]:
+        result.density_flat_runs = density_result["flat_runs"]
+        result.findings.append(
+            f"D3 信息密度波动不足：段落 {density_result['flat_runs']} "
+            f"附近连续段落密度过于均匀，呈现 AI 文本特征。"
+            f"建议：增加过渡段拉大密度差异，形成'高-低-高'交替。"
         )
         result.ok = False
 
@@ -346,7 +500,13 @@ def to_markdown(result: HumanizeCheckResult) -> str:
     lines.append("")
     lines.append(f"- 段落数: {result.manuscript_paragraphs}")
     lines.append(f"- 矩阵行数: {result.matrix_rows}")
-    lines.append(f"- 连接词命中: {result.connector_count}")
+    lines.append(f"- 连接词总命中: {result.connector_count}")
+    lines.append(f"  - 红色高风险词: {result.connector_red}")
+    lines.append(f"  - 黄色中风险词: {result.connector_yellow}")
+    if result.term_violations:
+        lines.append(f"- 术语保护违规: {len(result.term_violations)}")
+    if result.density_flat_runs:
+        lines.append(f"- 密度平坦段落组: {result.density_flat_runs}")
     lines.append("")
 
     lines.append("## 发现的问题" if not result.ok else "## 问题")
@@ -378,6 +538,12 @@ def to_json(result: HumanizeCheckResult) -> str:
         "short_sentence_ratio": result.short_sentence_ratio,
         "connector_count": result.connector_count,
         "connector_density": result.connector_density,
+        "connector_red": result.connector_red,
+        "connector_yellow": result.connector_yellow,
+        "connector_red_detail": result.connector_red_detail,
+        "connector_yellow_detail": result.connector_yellow_detail,
+        "term_violations": result.term_violations,
+        "density_flat_runs": result.density_flat_runs,
         "findings": result.findings,
         "warnings": result.warnings,
     }, ensure_ascii=False, indent=2)
