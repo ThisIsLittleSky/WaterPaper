@@ -13,6 +13,7 @@
 
 **底层原理参考**：`references/detection_principles.md`
 **改写技法参考**：`references/rewrite_methods.md`
+**PaperPass 专项参考**：`references/paperpass_patterns.md`（2026-06 新增）
 
 ## 输入
 
@@ -66,6 +67,7 @@ python ~/.claude/skills/aigc-detector/scripts/docx_io.py read "<文件路径>"
 - **英文**：Template transitions ("Firstly...Secondly...In conclusion...", "It is important to note that...")
 - 句长过于均匀（缺乏长短句交错）
 - 段落结构雷同
+- **PaperPass 专项**：对照 `references/paperpass_patterns.md` 五模式——数字序号排比(S06)、自问自答模板(S07)、并列数据罗列(S08)、模板化路标过渡(S09)、结论段并列问题(S10)
 
 #### 维度 2：逻辑词密度（权重 20%）
 
@@ -257,11 +259,13 @@ cp "<原始文件路径>" "<原始文件名去扩展名>_backup.docx"
 |:------:|------|---------|------|
 | 1 | 句式重构 | 句式规整度 | 打破句长均匀分布 |
 | 2 | 破解AI模板 | 逻辑词密度 | 删除模板化连接词 |
-| 3 | 论证补全 | 论证深度 | 增加多维证据与对比 |
-| 4 | 概念具象化 | 词汇多样性 | 抽象表达→具体数据 |
-| 5 | 困惑度提升 | 词汇多样性 | 使用非模板化表达 |
-| 6 | 风格断裂 | 句式规整度 | 段落间切换风格 |
-| 7 | 添加主语 | 语态特征 | 补充行为主体 |
+| 3 | **碎片化断句（技法八）** | **句式规整度 + PaperPass五模式** | **二字句制造节奏断裂** |
+| 4 | 论证补全 | 论证深度 | 增加多维证据与对比 |
+| 5 | 概念具象化 | 词汇多样性 | 抽象表达→具体数据 |
+| 6 | **空行破并列（技法九）** | **句式规整度 + PaperPass S10** | **拆分段落内并列结构** |
+| 7 | 困惑度提升 | 词汇多样性 | 使用非模板化表达 |
+| 8 | 风格断裂 | 句式规整度 | 段落间切换风格 |
+| 9 | 添加主语 | 语态特征 | 补充行为主体 |
 
 **改写原则**：
 - 保持低风险段落不变
@@ -269,6 +273,18 @@ cp "<原始文件路径>" "<原始文件名去扩展名>_backup.docx"
 - 遵循 D0 最小干预原则：优先句内微调，不大段重写
 - 遵循术语保护规则（`references/term_whitelist.md`）
 - 不编造数据、文献或实验结果
+- **PaperPass 专项**：对照 `references/paperpass_patterns.md` 五模式逐段检查，优先破解数字序号排比和结论段并列（最高危）
+
+#### 5.2b PaperPass 反馈迭代改写（当用户提供 PaperPass 报告时）
+
+如果用户提供了 PaperPass AIGC 检测报告（通常为 `AIGC检测报告.html` 或 `texthtmldata_ai.js`）：
+
+1. 从报告数据中提取 `aiCheckSentenceList`，筛选所有 `score >= 50` 的片段
+2. 将 50+ 片段按 `sectionCount` 映射回论文对应段落
+3. 对每个 50+ 片段逐一应用 `references/paperpass_patterns.md` 对应的破解技法
+4. 优先处理最高分片段（90+），再处理次高分（50-89）
+5. 改写后运行 `humanize_check.py` 验证，确保不引入新的表层问题
+6. 产出改写对比：列出每个片段的 PaperPass 原始分数 → 对应破解技法 → 改动内容
 
 #### 5.3 输出改写后文档
 

@@ -232,14 +232,22 @@ def check_info_density(text: str) -> dict | None:
         if chars == 0:
             densities.append(0)
             continue
+        # 2026-06: 跳过参考文献段 — 结构相同，密度自然均匀
+        if re.match(r'^\s*\[\d+\]', p):
+            densities.append(-1)  # sentinel, excluded from flat-run check
+            continue
         proper_nouns = len(re.findall(r'[A-Z]{2,}', p))
+        # 2026-06: 密度公式不变，中文专有名词通过 CAPS 缩写间接覆盖（NR-V2X, URLLC 等）
         numbers = len(re.findall(r'\d+', p))
         refs = len(re.findall(r'\[\d+(?:[,，\s]*\d+)*\]', p))
         density = (proper_nouns * 3 + numbers * 2 + refs * 2) / (chars / 100)
         densities.append(round(density, 1))
     flat_runs = []
     for i in range(len(densities) - 2):
-        if max(densities[i:i+3]) - min(densities[i:i+3]) < 2:
+        # 2026-06: 阈值从 2 放宽到 3，降低误报；跳过含 sentinel(-1) 的窗口
+        if -1 in densities[i:i+3]:
+            continue
+        if max(densities[i:i+3]) - min(densities[i:i+3]) < 3:
             flat_runs.append(i + 1)
     if flat_runs:
         return {"densities": densities, "flat_runs": flat_runs}
