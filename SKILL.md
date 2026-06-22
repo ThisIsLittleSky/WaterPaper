@@ -2,9 +2,26 @@
 
 ## Overview
 
-本技能用于将用户提出的课程论文需求，经过一句话出选题→真实文献采集→大纲→写作→图表→成稿的完整流程，稳定转化为一篇格式规范、参考文献真实可核验的中文本科课程期末论文（3000-8000 字）。
+本技能支持两大工作模式：
+
+1. **论文写作模式**：从一句话出选题→真实文献采集→大纲→写作→图表→成稿，稳定生成格式规范、参考文献真实可核验的中文本科课程期末论文（3000-8000 字）
+2. **检测/改写模式**：对已有论文进行 5 维度 AIGC 特征深度分析 + 7 大技法智能改写，降低 AI 检测率
 
 水论文不是真的水——而是让选题、文献、格式这些体力活自动化，把你的时间用在更有价值的事情上。
+
+## Mode Routing（模式路由）
+
+根据用户意图自动判断工作模式：
+
+**触发论文写作模式的关键词**："写论文""撰写""生成论文""毕业论文""帮我写""写一篇"
+→ 执行下方「论文写作模式」流程（第 1-12 步）
+
+**触发检测/改写模式的关键词**："分析""检测""改写""降低AI率""降AI""AIGC""AI率"
+→ 执行「检测/改写模式」流程（参考 `prompts/detection_pass.md`）
+
+**如果意图不明确**，使用 AskUserQuestion 询问：
+1. "撰写新论文（论文写作模式）"
+2. "检测或改写已有论文（检测/改写模式）"
 
 核心差异化能力：
 1. **格式提取**：支持用户上传学校模板 `.docx` / `.doc` 或粘贴格式要求，自动提取并严格按模板排版（`.doc` 自动转换为 `.docx`）
@@ -12,6 +29,7 @@
 3. **真实文献采集**：通过多源爬虫脚本抓取真实学术文献，杜绝编造
 4. **HTML 科研图表**：用 HTML/CSS/JS 绘制科研级别图表，Playwright 渲染为 PNG 插入正文
 5. **完整交付链**：格式 → 选题 → 文献 → 大纲 → 正文 → 图表 → DOCX，一步到位
+6. **AIGC 检测+改写**：5 维度语义分析定位 AI 痕迹 + 7 大改写技法精准降AI（新增）
 
 ## Hard Gates
 
@@ -36,6 +54,14 @@
 13. 成稿前必须运行 `python tools/humanize_check.py <paper.md> --markdown` 验证，句长标准差 ≥ 6、连接词密度 ≤ 8/千字、无红色高风险词、无术语保护违规 才能交付。
 14. 所有产物（中间产物 + 最终交付物）必须存放在 `papers/{YYYYMMDD}_{序号}/` 目录下，文件名统一使用 `{YYYYMMDD}_{序号}_{描述}.{ext}` 格式。包括论文 `.md` 终稿、`.docx` 成稿、图表 `.png` 渲染成品。禁止将任何产物散落在用户模板文件所在目录。
 15. 降AI检查通过后，必须运行 `prompts/plagiarism_pass.md` 降重流程，对全文中高风险段落（标准定义、文献综述、方法描述、结论汇总）进行深度语义改写，确保通用知识表述不与现有文献雷同。
+
+**检测/改写模式 Hard Gates：**
+
+16. 检测论文时，必须先读取全文再进行 5 维度语义分析，不得跳过任何维度。
+17. 检测报告必须包含完整的维度评分表、段落级分析和改写优先级排序。
+18. 改写时必须遵循 7 大改写技法优先级（句式重构 > 破解模板 > 论证补全 > 概念具象 > 困惑度提升 > 风格断裂 > 添加主语），详见 `references/rewrite_methods.md`。
+19. 改写后必须运行 `python tools/humanize_check.py <file> --markdown` 验证通过（句长标准差 ≥ 6、连接词密度 ≤ 8/千字、无红色高风险词、无术语保护违规）。
+20. 检测/改写产物必须放入 `papers/{YYYYMMDD}_{序号}/` 目录，与写作模式产物管理规则一致。
 
 ## Execution States
 
@@ -64,7 +90,22 @@ intake → format_confirmed → topic_selection → topic_confirmed → literatu
 - 若用户中途更换选题，状态退回 `topic_selection`
 - 若用户中途更换模板，状态退回 `format_confirmed`
 
-## Core Flow
+## Detection Mode Execution States
+
+```
+intake → language_detected → doc_loaded → analysis_done → report_done → rewrite_done → verified → delivery
+```
+
+1. `intake` — 接收用户提供的论文（.docx 路径 或 粘贴文本）+ 可选学科类型
+2. `language_detected` — 语言检测完成（中文/英文自动识别）
+3. `doc_loaded` — 文档读取完成（docx_io.py 或文本解析）
+4. `analysis_done` — 5 维度语义分析完成
+5. `report_done` — 检测报告已输出，用户已选择后续操作
+6. `rewrite_done` — 改写完成（仅当用户选择改写时）
+7. `verified` — humanize_check.py 验证通过
+8. `delivery` — 检测报告 / 改写后 .docx 已交付
+
+## Core Flow — 论文写作模式
 
 ### 1. 需求收集 (intake)
 
@@ -367,10 +408,57 @@ python tools/humanize_check.py paper.md --markdown --write
 - 论文 `.md` 终稿 → `papers/{YYYYMMDD}_{序号}/{YYYYMMDD}_{序号}_论文终稿.md`
 - 论文 `.docx` 终稿 → `papers/{YYYYMMDD}_{序号}/{YYYYMMDD}_{序号}_论文终稿.docx`
 - 图表 `.png` 渲染成品 → `papers/{YYYYMMDD}_{序号}/{YYYYMMDD}_{序号}_fig1_xxx.png`
+- 降AI检测报告 → `papers/{YYYYMMDD}_{序号}/{YYYYMMDD}_{序号}_aigc_report.md`
+- 改写后论文 → `papers/{YYYYMMDD}_{序号}/{YYYYMMDD}_{序号}_rewritten.docx`
+
+## Core Flow — 检测/改写模式
+
+当用户触发检测/改写模式时，按以下步骤执行。详细指令见 `prompts/detection_pass.md`。
+
+**Step 0：语言检测**
+
+分析输入文本的前 500 字符，自动识别中文/英文，后续步骤使用对应语言模板。
+
+**Step 1：读取文档**
+
+- .docx 文件：`python tools/docx_io.py read "<路径>"`
+- 粘贴文本：直接使用
+
+**Step 2：5 维度语义分析**
+
+基于语义理解（非规则匹配）对文本进行 5 维度 AI 特征分析：
+句式规整度 (25%) + 逻辑词密度 (20%) + 语态特征 (15%) + 词汇多样性 (15%) + 论证深度 (25%)
+
+评分时考虑学科类型（文科/理工科/医学/经管），使用 `references/detection_principles.md` 中的特化阈值。
+
+**Step 3：输出检测报告**
+
+输出结构化 Markdown 检测报告，包含：
+- 整体 AIGC 风险评分 + 维度评分表
+- 段落级分析（每段标注评分、问题、风险原因）
+- 改写优先级排序表 + 总体建议
+
+**Step 4：询问用户**
+
+使用 AskUserQuestion 询问后续操作：
+1. "保存报告为 Markdown 文件"
+2. "对高风险段落进行改写并输出 .docx"
+3. "仅查看改写建议（不修改文档）"
+
+**Step 5：改写并输出（仅当用户选择时）**
+
+改写遵循 7 大技法优先级（详见 `references/rewrite_methods.md`）：
+1. 句式重构 → 2. 破解AI模板 → 3. 论证补全 → 4. 概念具象 → 5. 困惑度提升 → 6. 风格断裂 → 7. 添加主语
+
+使用 `python tools/docx_io.py replace` 逐段替换，保留原始格式。
+改写后运行 `python tools/humanize_check.py <file> --markdown` 验证通过。
+
+产物归档到 `papers/{YYYYMMDD}_{序号}/` 目录。
 
 ## Style Guardrails
 
 降AI写作约束（详见 `prompts/humanize_constraints.md`，默认 medium 档；词库详见 `references/ai_vocabulary_blacklist.md`）：
+改写技法参考（详见 `references/rewrite_methods.md` 的 7 大改写技法中英文版）：
 
 1. **D0 最小干预**：句内微调优先，不推翻原段落逻辑，不搞大段 AI 式重写。保留作者原始逻辑与思维跳跃。
 2. **D1 句长**：每 3-4 句必须有一句长度显著偏离（≤10字 或 ≥35字），禁止连续 3 句长度差 < 8 字。
@@ -394,26 +482,32 @@ python tools/humanize_check.py paper.md --markdown --write
 - `prompts/outline_builder.md` — 大纲构建
 - `prompts/chapter_writer.md` — 章节写作
 - `prompts/chart_designer.md` — 科研图表设计
-- `prompts/plagiarism_pass.md` — 独立降重改写 Prompt（新增）
+- `prompts/plagiarism_pass.md` — 独立降重改写 Prompt
+- `prompts/detection_pass.md` — AIGC 检测 + 7 技法改写 Prompt（新增）
 
 ### Tools
 - `tools/analyze_template.py` — DOCX 模板格式提取
 - `tools/literature_scraper.py` — 多源文献爬虫
 - `tools/render_html_chart.py` — HTML 图表渲染
+- `tools/diagram_gen.py` — Mermaid 图表渲染（新增：流程图/架构图/UML/ER图）
 - `tools/count_words.py` — 字数统计
-- `tools/generate_paper_docx.py` — DOCX 成稿
+- `tools/generate_paper_docx.py` — DOCX 成稿（Markdown→DOCX 整体转换）
+- `tools/docx_io.py` — DOCX 段落级读写替换（新增：检测/改写模式用）
 
 ### References
 - `references/course_paper_structure.md` — 课程论文结构模板
 - `references/default_format.md` — 默认格式规范
 - `references/humanize_platforms.md` — 各平台降AI策略
 - `references/humanize_matrix_template.md` — humanize_matrix.md 模板
-- `references/ai_pattern_taxonomy.md` — 30+ AI 模式分类学（新增）
-- `references/ai_vocabulary_blacklist.md` — 三级词汇黑名单（新增）
-- `references/term_whitelist.md` — 术语保护白名单（新增）
+- `references/ai_pattern_taxonomy.md` — 30+ AI 模式分类学
+- `references/ai_vocabulary_blacklist.md` — 三级词汇黑名单
+- `references/term_whitelist.md` — 术语保护白名单
+- `references/rewrite_methods.md` — 7 大改写技法中英文版（新增）
+- `references/detection_principles.md` — AIGC 检测原理知识库（新增）
 
 ### Humanize（降AI + 降重）
 - `prompts/humanize_constraints.md` — D0-D6 降AI写作约束（含三级词汇体系）
 - `prompts/humanize_pass.md` — 独立降AI改写 Prompt（含模式扫描 + 句式/语气/逻辑三维改写）
 - `prompts/plagiarism_pass.md` — 独立降重改写 Prompt（含深度语义改写 + 表述角度转换）
+- `prompts/detection_pass.md` — AIGC 检测 + 7 技法改写 Prompt（新增）
 - `tools/humanize_check.py` — 降AI效果验证脚本（含三级词汇报告 + 术语保护检查 + 密度波动检查）

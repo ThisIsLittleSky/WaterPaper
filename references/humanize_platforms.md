@@ -2,6 +2,19 @@
 
 基于各主流 AIGC 检测系统的已知特征，提供针对性规避策略。
 
+> **学术基础**：各检测平台的底层均基于学术界 5 大主流检测技术。了解这些技术的原理有助于理解平台策略的"为什么"。
+> 详见 `references/detection_principles.md`，概要如下：
+>
+> | 检测技术 | 代表平台/论文 | 核心原理 | 对应本 Skill 维度 |
+> |---------|-------------|---------|-----------------|
+> | 困惑度检测 (Perplexity) | DetectGPT (Stanford) | AI 倾向选择高概率词，文本困惑度偏低 | 技法六：困惑度提升 |
+> | 突发性检测 (Burstiness) | GPTZero | 人类句长分布突发性强，AI 过于均匀 | D1 句长分布 / 技法一：句式重构 |
+> | 分类器检测 (Classifier) | RoBERTa-based | 预训练模型学习人类/AI 文本分布差异 | 技法七：风格断裂 |
+> | 多特征融合 (Multi-feature) | Ghostbuster (UC Berkeley) | 多个互补特征加权融合判断 | 5 维度综合评分 |
+> | 概率曲率分析 (Probability Curvature) | DetectGPT (Stanford) | AI 文本处于概率高区，微扰后总回原始词 | 技法六：困惑度提升 |
+>
+> **学科特化阈值**：不同学科的检测敏感度不同（详见 `references/detection_principles.md` 第五章），文科关注句式+逻辑词，理工科关注论证深度+概念具象度，医学关注术语规范度+数据精确度，经管关注逻辑论证+案例结合度。
+
 ---
 
 ## 知网（CNKI）
