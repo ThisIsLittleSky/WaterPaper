@@ -16,12 +16,12 @@
 <p align="center">
   <a href="#why-you-need-this">Why You Need This</a> ·
   <a href="#quick-start">Quick Start</a> ·
-  <a href="#workflow">Workflow</a> ·
-  <a href="#project-structure">Project Structure</a> ·
   <a href="#literature-data-sources">Data Sources</a> ·
   <a href="#paper-structure-course-papers">Paper Structure</a> ·
   <a href="#chart-types">Chart Types</a> ·
-  <a href="#faq">FAQ</a>
+  <a href="#faq">FAQ</a> ·
+  <a href="#workflow">Workflow</a> ·
+  <a href="#project-structure">Project Structure</a>
 </p>
 
 <p align="center">
@@ -39,29 +39,18 @@ Finals week. N course papers stacked on your desk. The process is always the sam
 
 WaterPaper.skill automates all of it:
 
-| Step | Manual Approach | WaterPaper.skill |
-|------|-----------------|-------------------|
-| Topics | Struggle to come up with 1 | One sentence → 5 angles × 2 topics = 10 choices |
-| References | Crawl CNKI, Wanfang, copy-paste | Multi-source crawler: auto fetch, deduplicate, verify |
-| Formatting | Adjust line by line against a template | Upload .docx template → auto-extract → strict replication |
-| Charts | Draw in Excel, screenshot, paste | HTML-rendered publication-quality SVG charts → auto-insert |
-| AI Reduction | Manually rephrase formulaic sentences | D0–D7 seven-dimension constraints + PaperPass 5-pattern scan + 9 rewriting techniques |
-| Plagiarism Reduction | Rewrite duplicate passages by hand | Deep semantic rewriting + perspective shifting + citation merging |
+| Step | Manual Approach | LLM Client | WaterPaper.skill |
+|------|-----------------|-------------|-------------------|
+| Topics | Struggle to come up with 1 | AI generates topics, no real ref support | One sentence → 5 angles × 2 topics = 10 choices |
+| References | Crawl CNKI, Wanfang, copy-paste | ❌ Fabricates references — titles & authors look real but don't exist | Multi-source crawler: auto fetch, deduplicate, verify |
+| Formatting | Adjust line by line against a template | Manual format description, no precise replication | Upload .docx template → auto-extract → strict replication |
+| Charts | Draw in Excel, screenshot, paste | Cannot generate or crude output | HTML-rendered publication-quality SVG charts → auto-insert |
+| AI Reduction | Manually rephrase formulaic sentences | No AI reduction capability | D0–D7 seven-dimension constraints + PaperPass 5-pattern scan + 9 rewriting techniques |
+| Plagiarism Reduction | Rewrite duplicate passages by hand | No plagiarism reduction capability | Deep semantic rewriting + perspective shifting + citation merging |
+
+> The fatal flaw of LLM clients: **they fabricate references** — titles, authors, and journals that look real but don't exist. WaterPaper.skill sources all references from actual CrossRef / Semantic Scholar / Baidu Scholar retrievals. Each entry is annotated with its source and verifiability status; unverifiable entries are discarded.
 
 You only need to do two things: **state what you need** and **make choices**. The scripts handle the rest.
-
-## vs. DeepSeek / Doubao / ChatGPT and Other LLM Clients
-
-There is one fatal flaw when writing papers directly with an LLM client: **it fabricates references**. Titles, authors, journals — they look real but don't exist.
-
-WaterPaper.skill is designed from the ground up to solve this:
-
-```
-LLM Client:        You prompt → AI invents topic → AI invents outline → AI invents references → AI writes
-WaterPaper.skill:  You prompt → AI proposes topics → ⚡ Crawler fetches real references → AI writes from references → deliver
-```
-
-All references come from actual retrieval results from CrossRef / Semantic Scholar / Baidu Scholar. Each entry is annotated with its source and verifiability status. Entries whose authenticity cannot be confirmed are discarded — no "speculative citations."
 
 ## Quick Start
 
@@ -78,109 +67,6 @@ Once installed, just say what you need:
 > "Help me reduce the AI detection score for my paper: [paper path], [plagiarism report.html (optional)]"
 
 The AI will walk through the full pipeline: **get template → propose topics → crawl references → build outline → write body → generate charts → deliver .docx**
-
-## Workflow
-
-```
-You: "Write me a final paper for XX course"
-  │
-  ▼
-┌──────────────────────┐
-│ 1. Format Extraction  │  ← You upload your school's .docx template or paste formatting requirements
-│    Auto-compare w/     │
-│    default format      │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 2. Topic Generation   │  ← AI generates 5 angles × 2 topics
-│    You pick 1         │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 3. ⚡ Literature      │  ← Multi-source crawler fetches real references
-│    CrossRef + SS +    │
-│    Baidu Scholar      │
-│    + CNKI             │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 4. Reference Verify   │  ← Each entry tagged with confidence, you confirm which to keep
-│    ✅High / ⚠️Medium  │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 5. Outline + Word     │  ← Allocate citations based on real references
-│    Budget             │
-│    You confirm, go    │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 6. Chapter Writing    │  ← Each chapter written to word budget, every sentence cited
-│    Stats after each   │
-│    chapter            │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 7. Chart Rendering    │  ← HTML/SVG academic charts → PNG
-│    Bar/line/framework │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 8. AI Detection Check │  ← D0–D7 7-dimension scan + PaperPass 5 patterns
-│    Auto-fix until pass│
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 9. Plagiarism         │  ← Deep semantic rewriting + perspective shifting
-│    Reduction          │     Standard definitions / literature review / methods
-│    High-risk zones    │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 10. .docx Final       │  ← Strictly follows your school's template format
-│     Paper title as    │
-│     filename          │
-└──────────────────────┘
-```
-
-## Project Structure
-
-```
-WaterPaper/
-├── SKILL.md                          # Main skill definition
-├── requirements.txt                  # Python dependencies
-│
-├── prompts/                          # AI prompt templates
-│   ├── format_extractor.md           #   Format extraction (.docx template & text description)
-│   ├── topic_selector.md             #   5 angles × 2 topic generation
-│   ├── outline_builder.md            #   Outline + word budget + reference allocation
-│   ├── chapter_writer.md             #   Chapter-by-chapter writing + citation rules + anti-plagiarism constraints
-│   ├── chart_designer.md             #   Academic HTML chart templates
-│   ├── humanize_constraints.md       #   D0–D7 AI reduction writing constraints (incl. PaperPass cheat sheet)
-│   ├── humanize_pass.md              #   Standalone AI reduction rewrite flow (36 keys + 9 techniques + 5-pattern scan)
-│   ├── detection_pass.md             #   AI detection check (incl. PaperPass feedback-based iterative rewrite)
-│   └── plagiarism_pass.md            #   Standalone plagiarism reduction rewrite flow
-│
-├── tools/                            # Python utility scripts
-│   ├── analyze_template.py           #   DOCX template format analyzer
-│   ├── literature_scraper.py         #   Multi-source literature crawler (4 data sources)
-│   ├── render_html_chart.py          #   HTML → PNG renderer (Playwright)
-│   ├── count_words.py                #   Mixed Chinese-English word counter
-│   ├── generate_paper_docx.py        #   Markdown → DOCX (python-docx)
-│   └── humanize_check.py             #   AI reduction verifier (3-tier vocabulary report + density/parallelism detection)
-│
-└── references/                       # Reference specifications
-    ├── course_paper_structure.md     #   4 discipline-specific paper structure templates
-    ├── default_format.md             #   GB/T 7714 default formatting spec
-    ├── detection_principles.md       #   Platform-specific AI detection principle analysis
-    ├── humanize_platforms.md         #   Platform-specific AI reduction strategies (incl. CNKI v3.0)
-    ├── humanize_matrix_template.md   #   humanize_matrix.md template
-    ├── paperpass_patterns.md         #   PaperPass 5 fatal patterns + counter-examples + score data
-    ├── rewrite_methods.md            #   9 AI reduction rewriting techniques quick reference
-    ├── ai_pattern_taxonomy.md        #   30+ AI pattern taxonomy (S01–S10 incl. PaperPass specifics)
-    ├── ai_vocabulary_blacklist.md    #   3-tier vocabulary blacklist
-    └── term_whitelist.md             #   Terminology protection whitelist
-```
 
 ## Literature Data Sources
 
@@ -256,6 +142,103 @@ If your template has formatting beyond the script's analysis scope (e.g., custom
 <br/>
 
 After receiving the final draft, we recommend reading through it once and adding your own perspectives and course-specific content. WaterPaper is a tool, not a ghostwriter.
+</details>
+
+## Workflow
+
+<details>
+<summary><b>Click to expand: Full 10-step workflow</b></summary>
+
+<br/>
+
+```mermaid
+flowchart TD
+    YOU["<b>You</b><br/>Write me a final paper for XX course"]:::user
+
+    subgraph R1 [ ]
+        direction LR
+        S1["<b>1. Format Extraction</b><br/>Upload template, auto-compare with defaults"]:::step
+        S2["<b>2. Topic Generation</b><br/>AI generates 5 angles × 2 topics"]:::step
+        S3["<b>3. ⚡ Literature Crawling</b><br/>CrossRef + SS + Baidu Scholar + CNKI"]:::step
+        S1 --> S2 --> S3
+    end
+
+    subgraph R2 [ ]
+        direction RL
+        S4["<b>4. Reference Verification</b><br/>Tagged with confidence, ✅High / ⚠️Medium"]:::step
+        S5["<b>5. Outline + Word Budget</b><br/>Allocate citations from real refs"]:::step
+        S6["<b>6. Chapter Writing</b><br/>Write to word budget, every sentence cited"]:::step
+        S4 --> S5 --> S6
+    end
+
+    subgraph R3 [ ]
+        direction LR
+        S7["<b>7. Chart Rendering</b><br/>HTML/SVG academic charts → PNG"]:::step
+        S8["<b>8. AI Detection Check</b><br/>D0-D7 scan + PaperPass 5 patterns"]:::step
+        S9["<b>9. Plagiarism Reduction</b><br/>Semantic rewriting + perspective shifting"]:::step
+        S7 --> S8 --> S9
+    end
+
+    S10["<b>10. .docx Final Delivery</b><br/>Strictly follows template, title as filename"]:::step
+
+    YOU --> S1
+    S3 --> S4
+    S6 --> S7
+    S9 --> S10
+
+    classDef user fill:#fff3cd,stroke:#ffc107,color:#856404,stroke-width:2px
+    classDef step fill:#e3f2fd,stroke:#2196f3,color:#0d47a1,stroke-width:2px
+    style R1 fill:transparent,stroke:transparent
+    style R2 fill:transparent,stroke:transparent
+    style R3 fill:transparent,stroke:transparent
+```
+
+</details>
+
+## Project Structure
+
+<details>
+<summary><b>Click to expand: Project directory structure</b></summary>
+
+<br/>
+
+```
+WaterPaper/
+├── SKILL.md                          # Main skill definition
+├── requirements.txt                  # Python dependencies
+│
+├── prompts/                          # AI prompt templates
+│   ├── format_extractor.md           #   Format extraction (.docx template & text description)
+│   ├── topic_selector.md             #   5 angles × 2 topic generation
+│   ├── outline_builder.md            #   Outline + word budget + reference allocation
+│   ├── chapter_writer.md             #   Chapter-by-chapter writing + citation rules + anti-plagiarism constraints
+│   ├── chart_designer.md             #   Academic HTML chart templates
+│   ├── humanize_constraints.md       #   D0–D7 AI reduction writing constraints (incl. PaperPass cheat sheet)
+│   ├── humanize_pass.md              #   Standalone AI reduction rewrite flow (36 keys + 9 techniques + 5-pattern scan)
+│   ├── detection_pass.md             #   AI detection check (incl. PaperPass feedback-based iterative rewrite)
+│   └── plagiarism_pass.md            #   Standalone plagiarism reduction rewrite flow
+│
+├── tools/                            # Python utility scripts
+│   ├── analyze_template.py           #   DOCX template format analyzer
+│   ├── literature_scraper.py         #   Multi-source literature crawler (4 data sources)
+│   ├── render_html_chart.py          #   HTML → PNG renderer (Playwright)
+│   ├── count_words.py                #   Mixed Chinese-English word counter
+│   ├── generate_paper_docx.py        #   Markdown → DOCX (python-docx)
+│   └── humanize_check.py             #   AI reduction verifier (3-tier vocabulary report + density/parallelism detection)
+│
+└── references/                       # Reference specifications
+    ├── course_paper_structure.md     #   4 discipline-specific paper structure templates
+    ├── default_format.md             #   GB/T 7714 default formatting spec
+    ├── detection_principles.md       #   Platform-specific AI detection principle analysis
+    ├── humanize_platforms.md         #   Platform-specific AI reduction strategies (incl. CNKI v3.0)
+    ├── humanize_matrix_template.md   #   humanize_matrix.md template
+    ├── paperpass_patterns.md         #   PaperPass 5 fatal patterns + counter-examples + score data
+    ├── rewrite_methods.md            #   9 AI reduction rewriting techniques quick reference
+    ├── ai_pattern_taxonomy.md        #   30+ AI pattern taxonomy (S01–S10 incl. PaperPass specifics)
+    ├── ai_vocabulary_blacklist.md    #   3-tier vocabulary blacklist
+    └── term_whitelist.md             #   Terminology protection whitelist
+```
+
 </details>
 
 ## License

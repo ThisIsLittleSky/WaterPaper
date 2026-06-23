@@ -16,12 +16,12 @@
 <p align="center">
   <a href="#为什么你需要这个">为什么你需要这个</a> ·
   <a href="#快速开始">快速开始</a> ·
-  <a href="#工作流">工作流</a> ·
-  <a href="#项目结构">项目结构</a> ·
   <a href="#文献数据源">文献数据源</a> ·
   <a href="#论文结构课程论文">论文结构</a> ·
   <a href="#图表类型">图表类型</a> ·
-  <a href="#常见问题">常见问题</a>
+  <a href="#常见问题">常见问题</a> ·
+  <a href="#工作流">工作流</a> ·
+  <a href="#项目结构">项目结构</a>
 </p>
 
 <p align="center">
@@ -39,29 +39,18 @@
 
 【水论文.skill】把这些事自动化了：
 
-| 环节 | 手工方式 | 【水论文.skill】 |
-|------|----------|------------|
-| 选题 | 绞尽脑汁想 1 个 | 一句话出 5 角度 × 2 选题 = 10 个 |
-| 文献 | 翻 CNKI、万方，复制粘贴 | 多源爬虫自动抓取，去重去假 |
-| 格式 | 对着模板一行行调 | 上传 .docx 模板 → 自动提取 → 严格复刻 |
-| 图表 | 用 Excel 画、截图、插入 | HTML 渲染科研级 SVG 图表 → 自动插 |
-| 降AI | 硬着头皮改套话、调句式 | D0-D7 七维约束 + PaperPass 五模式扫描 + 9 大改写技法 |
-| 降重 | 手动改写重复段落 | 深度语义改写 + 表述角度转换 + 引用归并 |
+| 环节 | 手工方式 | 大模型客户端 | 【水论文.skill】 |
+|------|----------|-------------|------------|
+| 选题 | 绞尽脑汁想 1 个 | AI 生成选题，但无真实文献支撑 | 一句话出 5 角度 × 2 选题 = 10 个 |
+| 文献 | 翻 CNKI、万方，复制粘贴 | ❌ 编造参考文献，标题作者看似真实 | 多源爬虫自动抓取，去重去假 |
+| 格式 | 对着模板一行行调 | 需手动描述格式，无法精确复刻 | 上传 .docx 模板 → 自动提取 → 严格复刻 |
+| 图表 | 用 Excel 画、截图、插入 | 无法生成或生成简陋 | HTML 渲染科研级 SVG 图表 → 自动插 |
+| 降AI | 硬着头皮改套话、调句式 | 无降AI能力 | D0-D7 七维约束 + PaperPass 五模式扫描 + 9 大改写技法 |
+| 降重 | 手动改写重复段落 | 无降重能力 | 深度语义改写 + 表述角度转换 + 引用归并 |
+
+> 大模型客户端写论文的致命问题是**编造参考文献**——标题、作者、期刊看起来像真的，实际上不存在。【水论文.skill】所有参考文献均来自 CrossRef / Semantic Scholar / 百度学术的实际抓取，每条标注来源和可核验状态，不确定的条目直接丢弃。
 
 你只需要两件事：**说需求** 和 **做选择**。剩下的交给脚本。
-
-## 和 DeepSeek / 豆包 / ChatGPT 等大模型客户端的区别
-
-用大模型客户端直接写论文有一个致命问题：**它会编造参考文献**。标题、作者、期刊看起来像真的，实际上不存在。
-
-【水论文.skill】的核心设计就是解决这个问题：
-
-```
-大模型客户端:    你提需求 → AI 编选题 → AI 编大纲 → AI 编文献 → AI 写
-【水论文.skill】:   你提需求 → AI 出选题 → ⚡爬虫抓真实文献 → AI 按文献写 → 交付
-```
-
-所有参考文献都来自 CrossRef / Semantic Scholar / 百度学术的实际抓取结果，每条标注来源和可核验状态。不确定真实性的条目直接丢弃，不写"猜测型引用"。
 
 ## 快速开始
 
@@ -78,103 +67,6 @@ AI agent会自动完成配置
 > “帮我给我的论文降低AI率，【论文路径】、【查重报告.html（可选）】”
 
 AI 会走完整流程：**要模板 → 出选题 → 爬文献 → 出大纲 → 写正文 → 出图 → 交 .docx**
-
-## 工作流
-
-```
-你: "帮我写一篇XX课期末论文"
-  │
-  ▼
-┌──────────────────────┐
-│ 1. 格式提取           │  ← 你上传学校模板 .docx 或粘贴格式要求
-│    自动对比默认格式    │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 2. 选题生成           │  ← AI 生成 5 角度 × 2 选题
-│    你选 1 个          │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 3. ⚡ 文献采集        │  ← 多源爬虫抓取真实文献
-│    CrossRef + SS +    │
-│    百度学术 + CNKI     │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 4. 文献核验           │  ← 每条标注可信度，你确认保留哪些
-│    ✅高 / ⚠️中        │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 5. 大纲 + 字数预算    │  ← 基于真实文献分配引用
-│    你确认后开写       │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 6. 逐章写作           │  ← 每章按预算控字，句句标引
-│    写完一章统计一次   │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 7. 图表渲染           │  ← HTML/SVG 科研图表 → PNG
-│    柱状图/折线图/框架图│
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 8. 降AI检查           │  ← D0-D7 七维扫描 + PaperPass 五模式
-│    自动修复至通过     │
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 9. 降重处理           │  ← 深度语义改写 + 表述角度转换
-│    高风险区域识别     │     标准定义/文献综述/方法描述
-└──────┬───────────────┘
-       ▼
-┌──────────────────────┐
-│ 10. .docx 成稿       │  ← 严格按你学校的模板格式
-│    论文标题命名       │
-└──────────────────────┘
-```
-
-## 项目结构
-
-```
-WaterPaper/
-├── SKILL.md                          # 技能主定义
-├── requirements.txt                  # Python 依赖
-│
-├── prompts/                          # AI 提示词模板
-│   ├── format_extractor.md           #   格式提取（.docx 模板 & 文字描述）
-│   ├── topic_selector.md             #   5 角度 × 2 选题生成
-│   ├── outline_builder.md            #   大纲 + 字数预算 + 文献分配
-│   ├── chapter_writer.md             #   逐章写作 + 引用规则 + 降重约束
-│   ├── chart_designer.md             #   科研 HTML 图表模板
-│   ├── humanize_constraints.md       #   D0-D7 降AI写作约束（含 PaperPass 专项表）
-│   ├── humanize_pass.md              #   独立降AI改写流程（36 键 + 9 技法 + 五模式扫描）
-│   ├── detection_pass.md             #   降AI检测流程（含 PaperPass 反馈迭代改写）
-│   └── plagiarism_pass.md            #   独立降重改写流程
-│
-├── tools/                            # Python 工具脚本
-│   ├── analyze_template.py           #   DOCX 模板格式分析器
-│   ├── literature_scraper.py         #   多源文献爬虫（4 数据源）
-│   ├── render_html_chart.py          #   HTML → PNG 渲染（Playwright）
-│   ├── count_words.py                #   中英混合字数统计
-│   ├── generate_paper_docx.py        #   Markdown → DOCX（python-docx）
-│   └── humanize_check.py             #   降AI效果验证（三级词汇报告 + 密度/并列检测）
-│
-└── references/                       # 参考规范
-    ├── course_paper_structure.md     #   4 类学科论文结构模板
-    ├── default_format.md             #   GB/T 7714 默认格式规范
-    ├── detection_principles.md       #   各平台AI检测原理分析
-    ├── humanize_platforms.md         #   各平台降AI策略参考（含知网 v3.0）
-    ├── humanize_matrix_template.md   #   humanize_matrix.md 模板
-    ├── paperpass_patterns.md         #   PaperPass 五大致命模式 + 破解实例 + 降分数据
-    ├── rewrite_methods.md            #   9 大降AI改写技法速查
-    ├── ai_pattern_taxonomy.md        #   30+ AI 模式分类学（S01-S10 含 PaperPass 专项）
-    ├── ai_vocabulary_blacklist.md    #   三级词汇黑名单
-    └── term_whitelist.md             #   术语保护白名单
-```
 
 ## 文献数据源
 
@@ -250,6 +142,103 @@ WaterPaper/
 <br/>
 
 拿到成稿后建议通读一遍，加入你自己的观点和课程相关的具体内容。水论文是工具，不是代写。
+</details>
+
+## 工作流
+
+<details>
+<summary><b>点击展开：完整 10 步工作流</b></summary>
+
+<br/>
+
+```mermaid
+flowchart TD
+    YOU["<b>你</b><br/>帮我写一篇XX课期末论文"]:::user
+
+    subgraph R1 [ ]
+        direction LR
+        S1["<b>1. 格式提取</b><br/>上传模板，自动对比默认格式"]:::step
+        S2["<b>2. 选题生成</b><br/>AI 生成 5 角度 × 2 选题"]:::step
+        S3["<b>3. ⚡ 文献采集</b><br/>CrossRef + SS + 百度学术 + CNKI"]:::step
+        S1 --> S2 --> S3
+    end
+
+    subgraph R2 [ ]
+        direction RL
+        S4["<b>4. 文献核验</b><br/>标注可信度，✅高 / ⚠️中"]:::step
+        S5["<b>5. 大纲 + 字数预算</b><br/>基于真实文献分配引用"]:::step
+        S6["<b>6. 逐章写作</b><br/>按预算控字，句句标引"]:::step
+        S4 --> S5 --> S6
+    end
+
+    subgraph R3 [ ]
+        direction LR
+        S7["<b>7. 图表渲染</b><br/>HTML/SVG 科研图表 → PNG"]:::step
+        S8["<b>8. 降AI检查</b><br/>D0-D7 七维 + PaperPass 五模式"]:::step
+        S9["<b>9. 降重处理</b><br/>语义改写 + 表述角度转换"]:::step
+        S7 --> S8 --> S9
+    end
+
+    S10["<b>10. .docx 成稿</b><br/>严格按模板格式，标题命名"]:::step
+
+    YOU --> S1
+    S3 --> S4
+    S6 --> S7
+    S9 --> S10
+
+    classDef user fill:#fff3cd,stroke:#ffc107,color:#856404,stroke-width:2px
+    classDef step fill:#e3f2fd,stroke:#2196f3,color:#0d47a1,stroke-width:2px
+    style R1 fill:transparent,stroke:transparent
+    style R2 fill:transparent,stroke:transparent
+    style R3 fill:transparent,stroke:transparent
+```
+
+</details>
+
+## 项目结构
+
+<details>
+<summary><b>点击展开：项目目录结构</b></summary>
+
+<br/>
+
+```
+WaterPaper/
+├── SKILL.md                          # 技能主定义
+├── requirements.txt                  # Python 依赖
+│
+├── prompts/                          # AI 提示词模板
+│   ├── format_extractor.md           #   格式提取（.docx 模板 & 文字描述）
+│   ├── topic_selector.md             #   5 角度 × 2 选题生成
+│   ├── outline_builder.md            #   大纲 + 字数预算 + 文献分配
+│   ├── chapter_writer.md             #   逐章写作 + 引用规则 + 降重约束
+│   ├── chart_designer.md             #   科研 HTML 图表模板
+│   ├── humanize_constraints.md       #   D0-D7 降AI写作约束（含 PaperPass 专项表）
+│   ├── humanize_pass.md              #   独立降AI改写流程（36 键 + 9 技法 + 五模式扫描）
+│   ├── detection_pass.md             #   降AI检测流程（含 PaperPass 反馈迭代改写）
+│   └── plagiarism_pass.md            #   独立降重改写流程
+│
+├── tools/                            # Python 工具脚本
+│   ├── analyze_template.py           #   DOCX 模板格式分析器
+│   ├── literature_scraper.py         #   多源文献爬虫（4 数据源）
+│   ├── render_html_chart.py          #   HTML → PNG 渲染（Playwright）
+│   ├── count_words.py                #   中英混合字数统计
+│   ├── generate_paper_docx.py        #   Markdown → DOCX（python-docx）
+│   └── humanize_check.py             #   降AI效果验证（三级词汇报告 + 密度/并列检测）
+│
+└── references/                       # 参考规范
+    ├── course_paper_structure.md     #   4 类学科论文结构模板
+    ├── default_format.md             #   GB/T 7714 默认格式规范
+    ├── detection_principles.md       #   各平台AI检测原理分析
+    ├── humanize_platforms.md         #   各平台降AI策略参考（含知网 v3.0）
+    ├── humanize_matrix_template.md   #   humanize_matrix.md 模板
+    ├── paperpass_patterns.md         #   PaperPass 五大致命模式 + 破解实例 + 降分数据
+    ├── rewrite_methods.md            #   9 大降AI改写技法速查
+    ├── ai_pattern_taxonomy.md        #   30+ AI 模式分类学（S01-S10 含 PaperPass 专项）
+    ├── ai_vocabulary_blacklist.md    #   三级词汇黑名单
+    └── term_whitelist.md             #   术语保护白名单
+```
+
 </details>
 
 ## License
