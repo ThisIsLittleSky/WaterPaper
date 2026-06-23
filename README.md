@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  🌐 <a href="README.md">中文</a> · <a href="README_EN.md">English</a>
+</p>
+
+<p align="center">
   <a href="#为什么你需要这个">为什么你需要这个</a> ·
   <a href="#快速开始">快速开始</a> ·
   <a href="#工作流">工作流</a> ·
@@ -256,4 +260,13 @@ MIT
 
 <p align="center">
   <sub>水论文不是真的水。把体力活交给脚本，把时间留给真正重要的东西。</sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/ThisIsLittleSky/WaterPaper/issues">Issues</a> ·
+  <a href="https://github.com/ThisIsLittleSky/WaterPaper/pulls">Pull Requests</a>
+</p>
+
+<p align="center">
+  <sub>欢迎提交 Issue 和 Pull Request！</sub>
 </p>
