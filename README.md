@@ -31,6 +31,18 @@
 
 ---
 
+## 效果展示
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="images/效果图1.png" alt="效果展示1" width="350"></td>
+    <td align="center"><img src="images/效果图2.png" alt="效果展示2" width="350"></td>
+    <td align="center"><img src="images/效果图3.png" alt="效果展示3" width="350"></td>
+  </tr>
+</table>
+
+---
+
 ## 为什么你需要这个
 
 期末周，N 篇课程论文压过来。每篇的流程都一样：

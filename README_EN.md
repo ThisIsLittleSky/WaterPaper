@@ -31,6 +31,18 @@
 
 ---
 
+## Screenshots
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="images/效果图1.png" alt="Screenshot 1" width="350"></td>
+    <td align="center"><img src="images/效果图2.png" alt="Screenshot 2" width="350"></td>
+    <td align="center"><img src="images/效果图3.png" alt="Screenshot 3" width="350"></td>
+  </tr>
+</table>
+
+---
+
 ## Why You Need This
 
 Finals week. N course papers stacked on your desk. The process is always the same:
