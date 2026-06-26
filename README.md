@@ -68,15 +68,19 @@
 
 把本项目的 GitHub 地址或下载到本地的文件夹路径，发给你的 AI 编程助手（Claude Code / Codex / Trae / Cursor 等），然后说：
 
-> "帮我安装这个 skill：https://github.com/ThisIsLittleSky/WaterPaper.git"
+```
+帮我安装这个 skill：https://github.com/ThisIsLittleSky/WaterPaper.git
+```
 
 AI agent会自动完成配置
 
 装好之后，直接说你的需求：
 
-> "用这个skill帮我写一篇关于移动通讯技术的期末论文，4000 字，格式模板是模板.docx"
->
-> “帮我给我的论文降低AI率，【论文路径】、【查重报告.html（可选）】”
+```
+用这个skill帮我写一篇关于移动通讯技术的期末论文，4000 字，格式模板是模板.docx
+
+帮我给我的论文降低AI率，【论文路径】、【查重报告.html（可选）】
+```
 
 AI 会走完整流程：**要模板 → 出选题 → 爬文献 → 出大纲 → 写正文 → 出图 → 交 .docx**
 

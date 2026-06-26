@@ -68,15 +68,19 @@ You only need to do two things: **state what you need** and **make choices**. Th
 
 Send the GitHub URL or the path to your local copy of this project to your AI coding assistant (Claude Code / Codex / Trae / Cursor, etc.) and say:
 
-> "Install this skill for me: https://github.com/ThisIsLittleSky/WaterPaper.git"
+```
+Install this skill for me: https://github.com/ThisIsLittleSky/WaterPaper.git
+```
 
 The AI agent will handle the setup automatically.
 
 Once installed, just say what you need:
 
-> "Use this skill to write a final paper on mobile communication technology, 4000 words, use 模板.docx as the format template."
->
-> "Help me reduce the AI detection score for my paper: [paper path], [plagiarism report.html (optional)]"
+```
+Use this skill to write a final paper on mobile communication technology, 4000 words, use 模板.docx as the format template.
+
+Help me reduce the AI detection score for my paper: [paper path], [plagiarism report.html (optional)]
+```
 
 The AI will walk through the full pipeline: **get template → propose topics → crawl references → build outline → write body → generate charts → deliver .docx**
 
