@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  <a href="#why-you-need-this">Why You Need This</a> ·
   <a href="#quick-start">Quick Start</a> ·
+  <a href="#why-you-need-this">Why You Need This</a> ·
   <a href="#literature-data-sources">Data Sources</a> ·
   <a href="#paper-structure-course-papers">Paper Structure</a> ·
   <a href="#chart-types">Chart Types</a> ·
@@ -43,6 +43,26 @@
 
 ---
 
+## Quick Start
+
+Send the GitHub URL or the path to your local copy of this project to your AI coding assistant (Claude Code / Codex / Trae / Cursor, etc.) and say:
+
+```
+Install this skill for me: https://github.com/ThisIsLittleSky/WaterPaper.git
+```
+
+The AI agent will handle the setup automatically.
+
+Once installed, just say what you need:
+
+```
+Use this skill to write a final paper on mobile communication technology, 4000 words, use 模板.docx as the format template.
+
+Help me reduce the AI detection score for my paper: [paper path], [plagiarism report.html (optional)]
+```
+
+The AI will walk through the full pipeline: **get template → propose topics → crawl references → build outline → write body → generate charts → deliver .docx**
+
 ## Why You Need This
 
 Finals week. N course papers stacked on your desk. The process is always the same:
@@ -63,26 +83,6 @@ WaterPaper.skill automates all of it:
 > The fatal flaw of LLM clients: **they fabricate references** — titles, authors, and journals that look real but don't exist. WaterPaper.skill sources all references from actual CrossRef / Semantic Scholar / Baidu Scholar retrievals. Each entry is annotated with its source and verifiability status; unverifiable entries are discarded.
 
 You only need to do two things: **state what you need** and **make choices**. The scripts handle the rest.
-
-## Quick Start
-
-Send the GitHub URL or the path to your local copy of this project to your AI coding assistant (Claude Code / Codex / Trae / Cursor, etc.) and say:
-
-```
-Install this skill for me: https://github.com/ThisIsLittleSky/WaterPaper.git
-```
-
-The AI agent will handle the setup automatically.
-
-Once installed, just say what you need:
-
-```
-Use this skill to write a final paper on mobile communication technology, 4000 words, use 模板.docx as the format template.
-
-Help me reduce the AI detection score for my paper: [paper path], [plagiarism report.html (optional)]
-```
-
-The AI will walk through the full pipeline: **get template → propose topics → crawl references → build outline → write body → generate charts → deliver .docx**
 
 ## Literature Data Sources
 
