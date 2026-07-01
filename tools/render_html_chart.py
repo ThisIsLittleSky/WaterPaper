@@ -23,6 +23,57 @@ import sys
 from pathlib import Path
 
 
+def _auto_crop_png(image_path: str, margin: int = 8, threshold: int = 250):
+    """Trim whitespace around a PNG image using PIL.
+
+    Crops to the bounding box of non-white (or near-white) pixels,
+    with a small margin preserved.
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return
+
+    im = Image.open(image_path)
+    if im.mode == "RGBA":
+        bg = Image.new("RGB", im.size, (255, 255, 255))
+        bg.paste(im, mask=im.split()[3])
+        im = bg
+    elif im.mode != "RGB":
+        im = im.convert("RGB")
+
+    pixels = im.load()
+    w, h = im.size
+    left, top, right, bottom = w, h, 0, 0
+
+    for y in range(h):
+        for x in range(w):
+            r, g, b = pixels[x, y]
+            if r < threshold or g < threshold or b < threshold:
+                if x < left:
+                    left = x
+                if x > right:
+                    right = x
+                if y < top:
+                    top = y
+                if y > bottom:
+                    bottom = y
+
+    if left > right or top > bottom:
+        im.close()
+        return
+
+    left = max(0, left - margin)
+    top = max(0, top - margin)
+    right = min(w - 1, right + margin)
+    bottom = min(h - 1, bottom + margin)
+
+    cropped = im.crop((left, top, right + 1, bottom + 1))
+    cropped.save(image_path)
+    cropped.close()
+    im.close()
+
+
 def check_playwright():
     """检查 Playwright 是否已安装"""
     try:
@@ -123,52 +174,22 @@ def render_html_to_png(
                 )
                 page.wait_for_timeout(300)
 
-            # 测量 body 实际内容尺寸（含标题、SVG、注释等全部元素）
-            content_metrics = page.evaluate("""() => {
-                var body = document.body;
-                var html = document.documentElement;
-                var w = Math.max(
-                    body.scrollWidth, body.offsetWidth,
-                    html.scrollWidth, html.offsetWidth,
-                    html.clientWidth
-                );
-                var h = Math.max(
-                    body.scrollHeight, body.offsetHeight,
-                    html.scrollHeight, html.offsetHeight,
-                    html.clientHeight
-                );
-                return { width: w, height: h };
-            }""")
-            cw = content_metrics["width"]
-            ch = content_metrics["height"]
-
-            # 扩展 viewport 到匹配内容实际尺寸 + 适量 padding
-            pad = 40
+            # 确保 viewport 足够大以容纳缩放后的内容
             page.set_viewport_size({
-                "width": max(width, cw + pad),
-                "height": max(200, ch + pad),
+                "width": max(width, target_width + 100),
+                "height": max(200, page.evaluate("document.body.scrollHeight") + 100),
             })
-            page.wait_for_timeout(200)
+            page.wait_for_timeout(100)
 
-            # 全页截图（包含所有 HTML 元素，不只是 SVG）
+            # 全页截图后用 PIL 精确裁剪白边
             page.screenshot(path=output_path, full_page=True)
             browser.close()
+            _auto_crop_png(output_path, margin=8)
             mode = "tight" if svg else "tight(table)"
             print(f"[OK] 已渲染({mode}): {html_path} → {output_path}")
             return output_path
 
         # tight_crop=False：传统全页截图
-        content_metrics = page.evaluate("""() => {
-            var body = document.body;
-            var html = document.documentElement;
-            var w = Math.max(body.scrollWidth, html.scrollWidth, html.clientWidth);
-            var h = Math.max(body.scrollHeight, html.scrollHeight, html.clientHeight);
-            return { width: w, height: h };
-        }""")
-        page.set_viewport_size({
-            "width": max(width, content_metrics["width"] + 40),
-            "height": max(400, content_metrics["height"] + 40),
-        })
         page.screenshot(path=output_path, full_page=True)
         browser.close()
 
@@ -267,7 +288,7 @@ def generate_bar_chart_html(
 
     svg_width = 700
     svg_height = 400
-    margin = {"top": 20, "right": 30, "bottom": 60, "left": 70}
+    margin = {"top": 20, "right": 10, "bottom": 60, "left": 70}
     chart_w = svg_width - margin["left"] - margin["right"]
     chart_h = svg_height - margin["top"] - margin["bottom"]
 
@@ -295,7 +316,7 @@ def generate_bar_chart_html(
 <html lang="zh">
 <head><meta charset="UTF-8">
 <style>
-  body {{ font-family: 'SimSun', 'Microsoft YaHei', 'Times New Roman', serif; }}
+  body {{ font-family: 'SimSun', 'Microsoft YaHei', 'Times New Roman', serif; margin: 0; padding: 0; }}
   .title {{ text-align: center; font-size: 14px; font-weight: bold; margin: 20px 0 10px; }}
   .svg-container {{ text-align: center; }}
   .source {{ text-align: center; font-size: 10px; color: #888; margin-top: 5px; }}

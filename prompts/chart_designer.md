@@ -37,7 +37,7 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  body { font-family: 'SimSun', 'Times New Roman', serif; padding: 30px; }
+  body { font-family: 'SimSun', 'Times New Roman', serif; margin: 0; padding: 0; }
   .chart-container { width: 700px; margin: 0 auto; }
   .chart-title { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
   .axis-label { font-size: 11px; fill: #333; }
